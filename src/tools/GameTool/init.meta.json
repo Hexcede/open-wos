@@ -7,6 +7,8 @@
 		"GripUp": [0.197, 0, 0.98],
 		"TextureId": "rbxassetid://1048129653",
 		"CanBeDropped": false,
-		"RequiresHandle": true
+		"RequiresHandle": true,
+
+		"Tags": ["GameTool"]
 	}
 }
