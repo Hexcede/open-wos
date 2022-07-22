@@ -1,0 +1,12 @@
+{
+	"className": "Tool",
+	"properties": {
+		"GripForward": [0, -0.1, -0.995],
+		"GripPos": [0, -1, 0],
+		"GripRight": [1, 0, 0],
+		"GripUp": [0, 0.995, -0.1],
+		"TextureId": "rbxassetid://1048129653",
+		"CanBeDropped": false,
+		"RequiresHandle": true
+	}
+}

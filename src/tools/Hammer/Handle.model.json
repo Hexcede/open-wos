@@ -1,0 +1,19 @@
+{
+	"ClassName": "Part",
+	"Children": [
+		{
+			"Name": "Mesh",
+			"ClassName": "SpecialMesh",
+			"Properties": {
+				"MeshType": "FileMesh",
+				"MeshId": "rbxasset://fonts/hammer.mesh",
+				"TextureId": "rbxasset://textures/hammertex128.png",
+				"Offset": [0, 0, 0]
+			}
+		}
+	],
+	"Properties": {
+		"Size": [1, 3.8, 1],
+		"CanCollide": false
+	}
+}

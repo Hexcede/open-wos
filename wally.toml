@@ -1,0 +1,8 @@
+[package]
+name = "hexcede/open-wos"
+version = "0.0.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[dependencies]
+H6x = "hexcede/h6x@2.1.1"

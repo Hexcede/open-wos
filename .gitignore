@@ -1,0 +1,12 @@
+# Project place file
+/open-wos.rbxlx
+
+# Roblox Studio lock files
+/*.rbxlx.lock
+/*.rbxl.lock
+
+# Wally lock file
+/wally.lock
+
+# Wally packages
+/Packages

@@ -1,0 +1,19 @@
+{
+	"ClassName": "Part",
+	"Children": [
+		{
+			"Name": "Mesh",
+			"ClassName": "SpecialMesh",
+			"Properties": {
+				"MeshType": "FileMesh",
+				"MeshId": "rbxassetid://16884681",
+				"TextureId": "rbxassetid://16884673",
+				"Offset": [0.1, 0, 0]
+			}
+		}
+	],
+	"Properties": {
+		"Size": [0.2, 0.8, 3],
+		"CanCollide": false
+	}
+}
