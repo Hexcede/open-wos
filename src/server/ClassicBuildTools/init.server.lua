@@ -12,7 +12,6 @@ local Permissions = require(ServerScriptService:WaitForChild("Permissions"))
 -------------------------------------------------------------------------------------------------------------------------
 
 local CollectionService = game:GetService("CollectionService")
-local Debris = game:GetService("Debris")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
