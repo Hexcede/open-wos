@@ -5,7 +5,7 @@
 		"GripPos": [0, -1, 0],
 		"GripRight": [1, 0, 0],
 		"GripUp": [0, 0.995, -0.1],
-		"TextureId": "rbxassetid://1048129653",
+		"TextureId": "rbxasset://textures/Hammer.png",
 		"CanBeDropped": false,
 		"RequiresHandle": true
 	}
