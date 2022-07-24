@@ -14,10 +14,6 @@ local Dragger = Instance.new("Dragger")
 
 local updateDelay = 1/45 -- Delay between sending dragger updates to the server
 
-local collisionColor = Color3.new(1, 0.2, 0.1)
-local collisionMaterial = Enum.Material.ForceField
-local collisionTransparency = 0
-
 local tool = script.Parent
 
 local selection = Instance.new("SelectionBox")
@@ -217,25 +213,6 @@ local function startDraggerAction(mouseObject)
 		
 		local pivot = mouseObject:GetPivot()
 		
-		--local partAppearances = table.create(#parts)
-		--for _, part in ipairs(parts) do
-		--	table.insert(partAppearances, {
-		--		Part = part;
-		--		Color = part.Color;
-		--		Transparency = part.Transparency;
-		--		Material = part.Material;
-		--	})
-		--end
-		
-		--local function resetAppearance()
-		--	for _, appearance in ipairs(partAppearances) do
-		--		local part = appearance.Part
-		--		part.Color = appearance.Color
-		--		part.Material = appearance.Material
-		--		part.Transparency = appearance.Transparency
-		--	end
-		--end
-		
 		local wasColliding = false
 		local lastSubmit = 0
 		draggerUpdate = RunService:BindToRenderStep("Dragger", Enum.RenderPriority.Input.Value + 1, function()
@@ -264,19 +241,6 @@ local function startDraggerAction(mouseObject)
 				pivot = mouseObject:GetPivot()
 				
 				local isColliding = doesCollide(parts)
-				--if isColliding ~= wasColliding then
-				--	if isColliding then
-				--		for _, appearance in ipairs(partAppearances) do
-				--			local part = appearance.Part
-				--			part.Color = collisionColor
-				--			part.Material = collisionMaterial
-				--			part.Transparency = collisionTransparency
-				--		end
-				--	else
-				--		resetAppearance()
-				--	end
-				--end
-				
 				if not isColliding then
 					if now - lastSubmit > updateDelay or not down then
 						submitUpdate:FireServer(currentKey, pivot)
@@ -287,8 +251,6 @@ local function startDraggerAction(mouseObject)
 			end
 		end)
 		coroutine.yield()
-		
-		--resetAppearance()
 
 		selection.Transparency = 1
 		gateway:InvokeServer("ClearKey", dragKey, not UserInputService:IsKeyDown(Enum.KeyCode.LeftShift))
