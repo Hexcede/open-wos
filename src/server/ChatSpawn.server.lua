@@ -3,7 +3,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local CRAFT_RADIUS = 128
 
-local Part = require(ServerScriptService:WaitForChild("Part"))
+local Object = require(ServerScriptService:WaitForChild("Object"))
 local Crafting = require(ServerScriptService:WaitForChild("Crafting"))
 
 -- TODO: Cmdr
@@ -20,7 +20,7 @@ local commands = {
 		end
 
 		print("Spawn", partName, amount)
-		partName = Part.fuzzySearch(partName)
+		partName = Object.fuzzySearch(partName)
 		Crafting:Spawn({
 			{
 				Resource = partName;

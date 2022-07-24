@@ -1,7 +1,7 @@
 --!strict
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
-local Part = require(ServerScriptService:WaitForChild("Part"))
+local Object = require(ServerScriptService:WaitForChild("Object"))
 
 local DIRECT_GET_ALLOW_LIST = {
 	ClassName = true;
@@ -19,8 +19,8 @@ export type UserObject = {
 }
 export type PlayerContext = {
 	UserId: number;
-	PartsToUserObjects: {[Part.PartObject]: UserObject};
-	UserObjectsToPart: {[UserObject]: Part.PartObject}
+	PartsToUserObjects: {[Object.PartObject]: UserObject};
+	UserObjectsToPart: {[UserObject]: Object.PartObject}
 }
 
 local UserObject = {}
@@ -51,13 +51,13 @@ local function getContextFromUserObject(userObject: UserObject): PlayerContext
 end
 UserObject.getContextFromUserObject = getContextFromUserObject;
 
-local function getPartFromUserObject(userObject: UserObject): Part.PartObject
+local function getPartFromUserObject(userObject: UserObject): Object.PartObject
 	local userObjectsToPart = getContextFromUserObject(userObject).UserObjectsToPart
 	return assert(userObjectsToPart[userObject], "Invalid UserObject.")
 end
 UserObject.getPartFromUserObject = getPartFromUserObject;
 
-function UserObject.new(contextOwner: Player | number, part: Part.PartObject): UserObject
+function UserObject.new(contextOwner: Player | number, part: Object.PartObject): UserObject
 	local context = UserObject.getContext(contextOwner)
 	
 	local userObject = context.PartsToUserObjects[part]
@@ -73,7 +73,7 @@ function UserObject.new(contextOwner: Player | number, part: Part.PartObject): U
 
 		metatable.__index = function(self: UserObject, index: string)
 			local value: any
-			assert(type(index) == "string", string.format("Attempt to index Part object with %s.", type(index)))
+			assert(type(index) == "string", string.format("%s is not a valid member of Object.", type(index)))
 			
 			-- Pick value (Mimicking a switch block)
 			repeat
@@ -136,10 +136,10 @@ function UserObject.new(contextOwner: Player | number, part: Part.PartObject): U
 				end
 			end
 			return value
-			--error(string.format("%s is not a valid member of Part.", index))
+			--error(string.format("%s is not a valid member of Object.", index))
 		end
 		metatable.__newindex = function(self: UserObject, index: string, value: any)
-			assert(type(index) == "string", string.format("Attempt to index Part object with %s.", type(index)))
+			assert(type(index) == "string", string.format("%s is not a valid member of Object.", type(index)))
 			
 			local part = getPartFromUserObject(self)
 			local class = part.Class
@@ -156,7 +156,7 @@ function UserObject.new(contextOwner: Player | number, part: Part.PartObject): U
 					end
 				end
 			end
-			error(string.format("%s is not a valid member of Part.", index))
+			error(string.format("%s is not a valid member of Object.", index))
 		end
 		metatable.__tostring = function(self)
 			return string.format("%s<%d>", self.ClassName, self.ContextId)

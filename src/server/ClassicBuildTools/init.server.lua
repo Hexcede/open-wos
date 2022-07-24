@@ -1,6 +1,6 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Part = require(ServerScriptService:WaitForChild("Part"))
+local Object = require(ServerScriptService:WaitForChild("Object"))
 local Permissions = require(ServerScriptService:WaitForChild("Permissions"))
 
 -------------------------------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ local function canGiveKey(player: Player, object: Instance)
 	end
 	
 	-- Not a custom part object
-	if not Part.fromReference(object) then
+	if not Object.fromReference(object) then
 		return false
 	end
 	
@@ -223,7 +223,7 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 	if request == "GetKey" then
 		local object, asClone = ...
 		object = getObject(object)
-		local partObject = Part.fromReference(object)
+		local partObject = Object.fromReference(object)
 		if not partObject then
 			return false
 		end

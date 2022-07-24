@@ -3,7 +3,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Packages = ReplicatedStorage:WaitForChild("Packages")
 
-local Part = require(ServerScriptService:FindFirstChild("Part"))
+local Object = require(ServerScriptService:FindFirstChild("Object"))
 local UserObject = require(ServerScriptService:WaitForChild("UserObject"))
 
 local H6x = require(Packages:WaitForChild("H6x"))
@@ -14,7 +14,7 @@ local MS_TIMEOUT = 20 -- How many milliseconds the sandbox may execute for
 -- User class
 local UMicrocontroller = {}
 
-function UMicrocontroller.Execute(self: Part.PartObject, userObject: UserObject.UserObject)
+function UMicrocontroller.Execute(self: Object.PartObject, userObject: UserObject.UserObject)
 	local runningSandbox = self.State.Sandbox
 	if runningSandbox then
 		-- Kill any old instance of the sandbox
@@ -24,13 +24,13 @@ function UMicrocontroller.Execute(self: Part.PartObject, userObject: UserObject.
 	local sandbox = H6x.Sandbox.new()
 	self.State.Sandbox = sandbox
 	
-	-- Replace all Part objects with UserObjects by this controller's context
+	-- Replace all objects with UserObjects by this controller's context
 	sandbox:AddRule({
 		Rule = "Inject";
 		Mode = "ByTypeOf";
 		Target = "userdata";
 		Callback = function(target): any
-			if Part.isPart(target) then
+			if Object.isPart(target) then
 				return UserObject.new(userObject.ContextId, target :: any)
 			end
 			return target
@@ -51,7 +51,7 @@ local Microcontroller = {
 	UserClass = UMicrocontroller
 }
 
-function Microcontroller.Init(self: Part.PartObject)
+function Microcontroller.Init(self: Object.PartObject)
 	local userObject: UserObject.UserObject = UserObject.new(0, self)
 	
 	local part = self:GetReference()

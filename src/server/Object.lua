@@ -19,47 +19,47 @@ export type PartObject = {
 }
 
 -- Private class
-local Part = {
+local Object = {
 	__metatable = "The metatable is locked.";
 }
 
-function Part:GetPublicFields()
+function Object:GetPublicFields()
 	return assert(toPublicFields[self], "Attempt to access a destroyed object.")
 end
-function Part:GetReference(): Instance
+function Object:GetReference(): Instance
 	return assert(toInstance[self], "Attempt to access a destroyed object.")
 end
 
-function Part:Clone()
+function Object:Clone()
 	-- TODO: Clone
 end
 
 local configKeyFormat = "CFG_%s"
 
-function Part:GetConfig(configIndex: string)
+function Object:GetConfig(configIndex: string)
 	local reference = self:GetReference()
 	assert(type(configIndex) == "string", "Config index must be a string.")
 	return reference:GetAttribute(string.format(configKeyFormat, configIndex))
 end
-function Part:SetConfig(configIndex: string, configValue: any)
+function Object:SetConfig(configIndex: string, configValue: any)
 	local reference = self:GetReference()
 	assert(type(configIndex) == "string", "Config index must be a string.")
 	reference:SetAttribute(string.format(configKeyFormat, configIndex), configValue)
 end
-function Part:GetConfigChangedSignal(configIndex: string)
+function Object:GetConfigChangedSignal(configIndex: string)
 	local reference = self:GetReference()
 	assert(type(configIndex) == "string", "Config index must be a string.")
 	return reference:GetAttributeChangedSignal(string.format(configKeyFormat, configIndex))
 end
 
-function Part:__invalidIndex(index: any)
+function Object:__invalidIndex(index: any)
 	error(string.format("Property %s is not a valid member of %s.", tostring(index), self.ClassName), 0)
 end
-function Part:__index(index: string)
+function Object:__index(index: string)
 	local value: any
 	assert(type(index) == "string", string.format("Attempt to index Part object with %s.", type(index)))
 
-	local publicFields = Part.GetPublicFields(self)
+	local publicFields = Object.GetPublicFields(self)
 	
 	-- Check against subclass
 	local class = publicFields.Class
@@ -72,7 +72,7 @@ function Part:__index(index: string)
 
 	-- Check against methods
 	if not string.find(index, "^__") then
-		value = Part[index]
+		value = Object[index]
 		if not rawequal(value, nil) then
 			return value
 		end
@@ -84,7 +84,7 @@ function Part:__index(index: string)
 		return value
 	end
 
-	local reference = Part.GetReference(self) :: any
+	local reference = Object.GetReference(self) :: any
 
 	-- Check against part properties
 	value = reference[index]
@@ -98,23 +98,23 @@ function Part:__index(index: string)
 	end
 	return nil
 end
-function Part:__newindex(index: any, value: any)
+function Object:__newindex(index: any, value: any)
 	local reference = self:GetReference()
 	reference[index] = value
 end
 
-function Part.__eq(a, b)
+function Object.__eq(a, b)
 	return rawequal(a, b)
-end;
-function Part:__tostring()
+end
+function Object:__tostring()
 	return string.format("%s<X>", self.ClassName)
 end
 
-function Part.fromReference(reference: Instance): PartObject?
+function Object.fromReference(reference: Instance): PartObject?
 	return byInstance[reference]
 end
 
-function Part.fuzzySearch(query: string): string
+function Object.fuzzySearch(query: string): string
 	local parts = partFolder:GetChildren()
 	local results = {}
 	for _, part in ipairs(parts) do
@@ -139,7 +139,7 @@ function Part.fuzzySearch(query: string): string
 	error(string.format("%s is not a valid part.", query))
 end
 
-function Part.findClass(partName: string)
+function Object.findClass(partName: string)
 	local class = classFolder:FindFirstChild(partName, true)
 	if class and class:IsA("ModuleScript") then
 		return require(class)
@@ -147,14 +147,14 @@ function Part.findClass(partName: string)
 	return nil
 end
 
-function Part.isPart(part: PartObject | any): boolean
+function Object.isPart(part: PartObject | any): boolean
 	if toInstance[part] then
 		return true
 	end
 	return false
 end
 
-function Part.partCount(partName: string): number
+function Object.partCount(partName: string): number
 	local target = partFolder:FindFirstChild(partName)
 	assert(target, string.format("%s is not a valid part.", partName))
 	
@@ -167,16 +167,16 @@ function Part.partCount(partName: string): number
 	return partCount
 end
 
-function Part.getModel(partName: string): PVInstance
+function Object.getModel(partName: string): PVInstance
 	return assert(partFolder:FindFirstChild(partName), string.format("%s is not a valid part.", partName))
 end
 
-function Part.new(partName: string): PartObject
-	local target = Part.getModel(partName)
+function Object.new(partName: string): PartObject
+	local target = Object.getModel(partName)
 	local reference = target:Clone()
 	
 	-- Find class
-	local Class = Part.findClass(partName)
+	local Class = Object.findClass(partName)
 	
 	-- Create public metadata
 	local publicFields = {
@@ -190,7 +190,7 @@ function Part.new(partName: string): PartObject
 	local partMetatable = getmetatable(part :: any)
 	
 	-- Copy metatable
-	for index, value in pairs(Part) do
+	for index, value in pairs(Object) do
 		partMetatable[index] = value
 	end
 	
@@ -215,4 +215,4 @@ function Part.new(partName: string): PartObject
 	return part
 end
 
-return table.freeze(Part)
+return table.freeze(Object)
