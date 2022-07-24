@@ -212,7 +212,7 @@ local function swingBuildTool(player)
 	end
 end
 
-function DraggerGateway.OnServerInvoke(player, request, ...)
+function DraggerGateway.OnServerInvoke(player: Player, request: string, ...): any...
 	if request == "GetKey" then
 		local worldObject, asClone = ...
 		worldObject = getObject(worldObject)
