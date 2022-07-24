@@ -213,7 +213,6 @@ local function startDraggerAction(mouseObject)
 		
 		local pivot = mouseObject:GetPivot()
 		
-		local wasColliding = false
 		local lastSubmit = 0
 		draggerUpdate = RunService:BindToRenderStep("Dragger", Enum.RenderPriority.Input.Value + 1, function()
 			if not down then
@@ -247,7 +246,6 @@ local function startDraggerAction(mouseObject)
 						lastSubmit = now
 					end
 				end
-				wasColliding = isColliding
 			end
 		end)
 		coroutine.yield()
