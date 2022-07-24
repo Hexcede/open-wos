@@ -169,13 +169,13 @@ local function removeObjectKey(key: string, joinSurfaces: boolean)
 					-- Connect parts to nearby surfaces
 					workspace:JoinToOutsiders(data.Parts, Enum.JointCreationMode.Surface)
 				end
-				for _, data in ipairs(parts) do
-					local part = data.Part
-					part.Anchored = data.Anchored
-					part.CanCollide = data.CanCollide
-					part.CanTouch = data.CanTouch
-					part.CanQuery = data.CanQuery
-					part.CollisionGroupId = data.CollisionGroupId
+				for _, partData in ipairs(parts) do
+					local part = partData.Part
+					part.Anchored = partData.Anchored
+					part.CanCollide = partData.CanCollide
+					part.CanTouch = partData.CanTouch
+					part.CanQuery = partData.CanQuery
+					part.CollisionGroupId = partData.CollisionGroupId
 				end
 			end
 
