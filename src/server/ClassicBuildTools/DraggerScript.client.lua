@@ -9,8 +9,6 @@
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local SoundService = game:GetService("SoundService")
-local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
 local Dragger = Instance.new("Dragger")
 
@@ -20,7 +18,6 @@ local collisionColor = Color3.new(1, 0.2, 0.1)
 local collisionMaterial = Enum.Material.ForceField
 local collisionTransparency = 0
 
-local player = Players.LocalPlayer
 local tool = script.Parent
 
 local selection = Instance.new("SelectionBox")
