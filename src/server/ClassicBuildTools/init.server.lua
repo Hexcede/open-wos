@@ -167,7 +167,7 @@ local function removeObjectKey(key: string, joinSurfaces: boolean)
 			if parts then
 				if joinSurfaces then
 					-- Connect parts to nearby surfaces
-					workspace:JoinToOutsiders(data.Parts, "Surface")
+					workspace:JoinToOutsiders(data.Parts, Enum.JointCreationMode.Surface)
 				end
 				for _, data in ipairs(parts) do
 					local part = data.Part
