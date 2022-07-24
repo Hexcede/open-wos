@@ -62,6 +62,7 @@ You may view the API reference [here (TBD)](#todo)
 - [ ] Add `Contributing.md` (guidelines for contribution).
 - [ ] Minor refactoring.
 - [ ] Rename references for `Parts` -> `Objects`.
+- [ ] Implement Object serialization/deserialization
 - [ ] Implement user permissions APIs.
 - [ ] Re-introduce `Clone` tool (Utilizing crafting system).
 - [ ] Add object configuration UI.
@@ -69,7 +70,7 @@ You may view the API reference [here (TBD)](#todo)
 - [ ] Add Microcontroller (user) APIs.
 - [ ] API reference for built-in recipe, object, and build system.
 - [ ] API reference for `Object` classes and `UserObject`s.
-- [ ] Implement Remodel build scripts and part management.
+- [ ] Implement Remodel build scripts and object management.
 - [ ] Implement mod support at runtime and compile time, utilizing H6x and Remodel.
 
 ## Dependencies & credits
