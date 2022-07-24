@@ -58,7 +58,7 @@ function Crafting:FindResourcesAround(resourceType: string, position: Vector3, r
 	searchParams.FilterDescendantsInstances = filterByResource(CollectionService:GetTagged("Object"), resourceType)
 	searchParams.MaxParts = amount * resourcePartCount
 	
-	local partObjects: {Object.Object} = table.create(amount)
+	local objects: {Object.Object} = table.create(amount)
 	local parts = workspace:GetPartBoundsInRadius(position, radius, searchParams)
 	for _, part in ipairs(parts) do
 		while part and not Object.fromReference(part) do
@@ -70,31 +70,31 @@ function Crafting:FindResourcesAround(resourceType: string, position: Vector3, r
 				continue
 			end
 			
-			local partObject = Object.fromReference(part)
-			if partObject then
-				print("Find", resourceType, partObject)
+			local object = Object.fromReference(part)
+			if object then
+				print("Find", resourceType, object)
 				
 				-- If ignored
-				if ignoreObjects and table.find(ignoreObjects, partObject) then
+				if ignoreObjects and table.find(ignoreObjects, object) then
 					print("Ignore")
 					continue
 				end
 				-- If already included
-				if table.find(partObjects, partObject) then
+				if table.find(objects, object) then
 					print("Skip existing")
 					continue
 				end
 				
 				-- Insert part
-				table.insert(partObjects, partObject)
-				if #partObjects >= amount then
+				table.insert(objects, object)
+				if #objects >= amount then
 					break
 				end
 			end
 		end
 	end
-	print(resourceType, amount, #partObjects, partObjects)
-	return partObjects
+	print(resourceType, amount, #objects, objects)
+	return objects
 end
 
 function Crafting:Consume(resources: {Object.Object})

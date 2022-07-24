@@ -221,26 +221,26 @@ end
 
 function DraggerGateway.OnServerInvoke(player, request, ...)
 	if request == "GetKey" then
-		local object, asClone = ...
-		object = getObject(object)
-		local partObject = Object.fromReference(object)
-		if not partObject then
+		local worldObject, asClone = ...
+		worldObject = getObject(worldObject)
+		local object = Object.fromReference(worldObject)
+		if not object then
 			return false
 		end
 		
 		if asClone then
 			if playerIsUsingTool(player, "Clone") then
-				local newPart = partObject:Clone()
+				local newPart = object:Clone()
 				newPart:BreakJoints()
 				newPart.Parent = workspace
 				
 				local copySound = Instance.new("Sound")
 				copySound.SoundId = "rbxasset://sounds/electronicpingshort.wav"
-				copySound.Parent = object
+				copySound.Parent = worldObject
 				copySound.Archivable = false
 				copySound:Play()
 				
-				object = newPart
+				worldObject = newPart
 				return false
 			else
 				return false
@@ -249,15 +249,15 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 			return false
 		end
 		
-		if canGiveKey(player, object) then
+		if canGiveKey(player, worldObject) then
 			local char = player.Character
 			if char then
 				local key = HttpService:GenerateGUID(false)
 				playerToKey[player] = key
-				objectToKey[object] = key
+				objectToKey[worldObject] = key
 				
-				local ancestryListener = object.AncestryChanged:Connect(function()
-					if not object:IsDescendantOf(workspace) then
+				local ancestryListener = worldObject.AncestryChanged:Connect(function()
+					if not worldObject:IsDescendantOf(workspace) then
 						removeObjectKey(key, false)
 					end
 				end)
@@ -266,7 +266,7 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 				--claimAssembly(player, part)
 				
 				--part:BreakJoints()
-				local parts = getPartsInObject(object)
+				local parts = getPartsInObject(worldObject)
 				workspace:UnjoinFromOutsiders(parts)
 				
 				local partData = table.create(#parts)
@@ -297,12 +297,12 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 				activeKeys[key] =
 				{
 					Player = player;
-					Object = object;
+					Object = worldObject;
 					Parts = parts;
 					PartData = partData;
 				}
 
-				return true, key, object
+				return true, key, worldObject
 			end
 		end
 		
