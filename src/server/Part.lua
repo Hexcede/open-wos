@@ -29,9 +29,6 @@ end
 function Part:GetReference(): Instance
 	return assert(toInstance[self], "Attempt to access a destroyed object.")
 end
-function Part:GetRecipe()
-	return nil
-end
 
 function Part:Clone()
 	-- TODO: Clone
