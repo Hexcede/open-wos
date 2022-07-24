@@ -208,13 +208,12 @@ local function startDraggerAction(mouseObject)
 		mouse.Icon = getIcon("Grab")
 		Dragger:MouseDown(rootPart, pointOnMousePart, parts)
 		
-		local draggerUpdate
 		local parentThread = coroutine.running()
 		
 		local pivot = mouseObject:GetPivot()
 		
 		local lastSubmit = 0
-		draggerUpdate = RunService:BindToRenderStep("Dragger", Enum.RenderPriority.Input.Value + 1, function()
+		RunService:BindToRenderStep("Dragger", Enum.RenderPriority.Input.Value + 1, function()
 			if not down then
 				submitUpdate:FireServer(currentKey, pivot)
 				RunService:UnbindFromRenderStep("Dragger")
