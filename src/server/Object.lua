@@ -1,7 +1,7 @@
 --!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
-local objectFolder = ReplicatedStorage:WaitForChild("Parts")
+local objectFolder = ReplicatedStorage:WaitForChild("Objects")
 local classFolder = ReplicatedStorage:WaitForChild("Classes")
 
 local byInstance: {[Instance]: Object} = {}

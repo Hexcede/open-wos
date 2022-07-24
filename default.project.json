@@ -5,9 +5,9 @@
 
 		"ReplicatedStorage": {
 			"$className": "ReplicatedStorage",
-			"Parts": {
+			"Objects": {
 				"$className": "Folder",
-				"$path": "src/parts"
+				"$path": "src/objects"
 			},
 			"Recipes": {
 				"$className": "Folder",
