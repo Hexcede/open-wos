@@ -80,27 +80,27 @@ local function canGiveKey(player: Player, object: Instance)
 	if object:IsA("BasePart") and object.Locked then
 		return false
 	end
-	
+
 	-- Not a custom part object
 	if not Object.fromReference(object) then
 		return false
 	end
-	
+
 	-- Player cannot drag object
 	if not Permissions:CanDrag(player, object) then
 		return false
 	end
-	
+
 	if playerToKey[player] then
 		print("Player already dragging.")
 		return false
 	end
-	
+
 	if objectToKey[object] then
 		print("Object already being dragged.")
 		return false
 	end
-	
+
 	return true
 end
 
@@ -108,7 +108,7 @@ local function canDelete(player: Player, object: Instance)
 	if not canGiveKey(player, object) then
 		return false
 	end
-	
+
 	if not Permissions:CanDelete(player, object) then
 		return false
 	end
@@ -127,7 +127,7 @@ local function getPartsInObject(object): {BasePart}
 	if object:IsA("BasePart") then
 		return {object}
 	end
-	
+
 	local partCount = 0
 	local descendants = object:GetDescendants()
 	for _, descendant in ipairs(descendants) do
@@ -142,7 +142,7 @@ local function getPartsInObject(object): {BasePart}
 			table.insert(parts, descendant)
 		end
 	end
-	
+
 	return parts
 end
 
@@ -154,19 +154,19 @@ end
 
 local function removeObjectKey(key: string, joinSurfaces: boolean)
 	local data = activeKeys[key]
-	
+
 	if data then
 		local player = data.Player
 		local object = data.Object
-		
+
 		if player then
 			playerToKey[player] = nil
 		end
-		
+
 		if data.AncestryListener then
 			data.AncestryListener:Disconnect()
 		end
-		
+
 		if object then
 
 			local parts = data.PartData
@@ -185,24 +185,24 @@ local function removeObjectKey(key: string, joinSurfaces: boolean)
 					--claimAssembly(player, part)
 				end
 			end
-			
+
 			objectToKey[object] = nil
 		end
-		
+
 		activeKeys[key] = nil
 	end
 end
 
 local function playerIsUsingTool(player,toolName)
 	local char = player.Character
-	
+
 	if char then
 		local tool = char:FindFirstChildWhichIsA("Tool")
 		if tool and CollectionService:HasTag(tool, toolName) then
 			return true, tool
 		end
 	end
-	
+
 	return false
 end
 
@@ -227,19 +227,19 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 		if not object then
 			return false
 		end
-		
+
 		if asClone then
 			if playerIsUsingTool(player, "Clone") then
 				local newObject = object:Clone()
 				newObject:BreakJoints()
 				newObject.Parent = workspace
-				
+
 				local copySound = Instance.new("Sound")
 				copySound.SoundId = "rbxasset://sounds/electronicpingshort.wav"
 				copySound.Parent = worldObject
 				copySound.Archivable = false
 				copySound:Play()
-				
+
 				worldObject = newObject
 				return false
 			else
@@ -248,14 +248,14 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 		elseif not playerIsUsingTool(player, "GameTool") then
 			return false
 		end
-		
+
 		if canGiveKey(player, worldObject) then
 			local char = player.Character
 			if char then
 				local key = HttpService:GenerateGUID(false)
 				playerToKey[player] = key
 				objectToKey[worldObject] = key
-				
+
 				local ancestryListener = worldObject.AncestryChanged:Connect(function()
 					if not worldObject:IsDescendantOf(workspace) then
 						removeObjectKey(key, false)
@@ -268,7 +268,7 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 				--part:BreakJoints()
 				local parts = getPartsInObject(worldObject)
 				workspace:UnjoinFromOutsiders(parts)
-				
+
 				local partData = table.create(#parts)
 				for _, part in ipairs(parts) do
 					local anchored = part.Anchored
@@ -276,13 +276,13 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 					local canTouch = part.CanTouch
 					local canQuery = part.CanQuery
 					local collisionGroupId = part.CollisionGroupId
-					
+
 					part.Anchored = true
 					part.CanCollide = false
 					part.CanTouch = false
 					part.CanQuery = false
 					PhysicsService:SetPartCollisionGroup(part, "DraggedObject")
-					
+
 					table.insert(partData, {
 						Part = part;
 						Anchored = anchored;
@@ -293,7 +293,7 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 						CollisionGroupId = collisionGroupId;
 					})
 				end
-				
+
 				activeKeys[key] =
 				{
 					Player = player;
@@ -305,15 +305,15 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 				return true, key, worldObject
 			end
 		end
-		
+
 		return false
 	elseif request == "ClearKey" then
 		local key, joinSurfaces = ...
-		
+
 		if not key then
 			key = playerToKey[player]
 		end
-		
+
 		if key then
 			local data = activeKeys[key]
 			if data then
@@ -326,27 +326,27 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 	elseif request == "RequestDelete" then
 		if not deleteDebounce[player] and playerIsUsingTool(player, "Hammer") then
 			local object = ...
-			
+
 			if canDelete(player, object) then
 				local pivot = object:GetPivot()
-				
+
 				local e = Instance.new("Explosion")
 				e.BlastPressure = 0
 				e.Position = pivot.Position
 				e.Parent = workspace
-				
+
 				local s = Instance.new("Sound")
 				s.PlayOnRemove = true
 				s.SoundId = "rbxasset://sounds/collide.wav"
 				s.Volume = 1
 				s.Parent = object
-				
+
 				swingBuildTool(player)
 				--claimAssembly(player, object)
 				
 				object:Destroy()
 			end
-			
+
 			task.wait(.1)
 			deleteDebounce[player] = false
 		end
@@ -384,25 +384,25 @@ local draggerScript = script:WaitForChild("DraggerScript")
 for toolName in pairs(DECLARED_BUILD_TOOLS) do
 	local BuildToolAdded = CollectionService:GetInstanceAddedSignal(toolName)
 	local BuildToolRemoved = CollectionService:GetInstanceRemovedSignal(toolName)
-	
+
 	local function onBuildToolAdded(tool)
 		if tool:IsA("Tool") and not CollectionService:HasTag(tool, "BuildTool") then
 			tool.Name = toolName
 			tool.CanBeDropped = false
-			
+
 			local dragger = draggerScript:Clone()
 			dragger.Parent = tool
 			dragger.Disabled = false
-			
+
 			CollectionService:AddTag(tool, "BuildTool")
 		end
 	end
-	
+
 	local function onBuildToolRemoved(tool)
 		if tool:IsA("Tool") and CollectionService:HasTag(tool, "BuildTool") then
 			CollectionService:RemoveTag(tool, toolName)
 			CollectionService:RemoveTag(tool, "BuildTool")
-			
+
 			local char = tool.Parent
 			if char and char:IsA("Model") then
 				local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -410,17 +410,17 @@ for toolName in pairs(DECLARED_BUILD_TOOLS) do
 					humanoid:UnequipTools()
 				end
 			end
-			
+
 			if tool:FindFirstChild("DraggerScript") then
 				tool.DraggerScript:Destroy()
 			end
 		end
 	end
-	
+
 	for _,buildTool in pairs(CollectionService:GetTagged(toolName)) do
 		onBuildToolAdded(buildTool)
 	end
-	
+
 	BuildToolAdded:Connect(onBuildToolAdded)
 	BuildToolRemoved:Connect(onBuildToolRemoved)
 end
@@ -437,7 +437,7 @@ local function onDescendantAdded(desc)
 			local tool = Instance.new("Tool")
 			tool.RequiresHandle = false
 			tool.Parent = desc.Parent
-			
+
 			CollectionService:AddTag(tool, toolName)
 			desc:Destroy()
 		end

@@ -35,7 +35,7 @@ local function filterByResource(parts: {Instance}, resourceType: string)
 			end
 		end
 	end
-	
+
 	local filtered = table.create(objectCount)
 	for _, reference in ipairs(parts) do
 		local object = Object.fromReference(reference)
@@ -50,14 +50,14 @@ end
 
 function Crafting:FindResourcesAround(resourceType: string, position: Vector3, radius: number, amount: number, ignoreObjects: {Object.Object}?, userId: number?): {Object.Object}
 	assert(Object.getModel(resourceType), string.format("Invalid class %s", resourceType))
-	
+
 	local resourcePartCount = Object.partCount(resourceType)
 
 	local searchParams = OverlapParams.new()
 	searchParams.FilterType = Enum.RaycastFilterType.Whitelist
 	searchParams.FilterDescendantsInstances = filterByResource(CollectionService:GetTagged("Object"), resourceType)
 	searchParams.MaxParts = amount * resourcePartCount
-	
+
 	local objects: {Object.Object} = table.create(amount)
 	local parts = workspace:GetPartBoundsInRadius(position, radius, searchParams)
 	for _, part in ipairs(parts) do
@@ -69,11 +69,11 @@ function Crafting:FindResourcesAround(resourceType: string, position: Vector3, r
 			if userId and not Permissions:CanDelete(userId, part) then
 				continue
 			end
-			
+
 			local object = Object.fromReference(part)
 			if object then
 				print("Find", resourceType, object)
-				
+
 				-- If ignored
 				if ignoreObjects and table.find(ignoreObjects, object) then
 					print("Ignore")
@@ -84,7 +84,7 @@ function Crafting:FindResourcesAround(resourceType: string, position: Vector3, r
 					print("Skip existing")
 					continue
 				end
-				
+
 				-- Insert object
 				table.insert(objects, object)
 				if #objects >= amount then
@@ -138,7 +138,7 @@ function Crafting:Spawn(results: {Result}, cframe: CFrame): {Object.Object}
 			amount = result.Amount or 1
 			successChance = result.SuccessChance or 1
 		end
-		
+
 		-- Create result objects
 		for i=1, amount do
 			if craftRandom:NextNumber() <= successChance then
@@ -152,7 +152,7 @@ function Crafting:Spawn(results: {Result}, cframe: CFrame): {Object.Object}
 		object:PivotTo(cframe * CFrame.new(0, 0, -5))
 		object.Parent = workspace
 	end
-	
+
 	return resultObjects
 end
 
@@ -161,7 +161,7 @@ function Crafting:CraftRecipe(cframe: CFrame, recipe: Recipe, radius: number, us
 	for _, ingredient in ipairs(recipe.Ingredients) do
 		local amount = ingredient.Amount or 1
 		local consumeChance = ingredient.ConsumeChance or 1
-		
+
 		-- Find resources
 		local resources = self:FindResourcesAround(ingredient.Resource, cframe.Position, radius, amount, ingredients, userId)
 		if #resources < amount then
@@ -174,7 +174,7 @@ function Crafting:CraftRecipe(cframe: CFrame, recipe: Recipe, radius: number, us
 				} :: Ingredient)
 			})
 		end
-		
+
 		-- Consume ingredients
 		if ingredient.Consume then
 			local removeCount = 0
@@ -190,7 +190,7 @@ function Crafting:CraftRecipe(cframe: CFrame, recipe: Recipe, radius: number, us
 			table.move(resources, 1, removeCount, #ingredients + 1, ingredients)
 		end
 	end
-	
+
 	Crafting:Consume(ingredients)
 	return Crafting:Spawn(recipe.Results, cframe)
 end
@@ -230,7 +230,7 @@ end
 function Crafting.getRecipe(recipeName: string): Recipe
 	local recipeModule = recipeFolder:FindFirstChild(recipeName, true)
 	assert(recipeModule, string.format("%s is not a valid recipe.", recipeName))
-	
+
 	local recipe = require(recipeModule) :: Recipe
 	table.freeze(recipe.Results)
 	table.freeze(recipe.Ingredients)

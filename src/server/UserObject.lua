@@ -59,14 +59,14 @@ UserObject.getObjectFromUserObject = getObjectFromUserObject;
 
 function UserObject.new(contextOwner: Player | number, object: Object.Object): UserObject
 	local context = UserObject.getContext(contextOwner)
-	
+
 	local userObject = context.ObjectsToUserObjects[object]
 	if not userObject then
 		userObject = newproxy(true)
 		assert(userObject)
-		
+
 		local metatable = getmetatable(userObject)
-		
+
 		contextsByUserObject[userObject] = context
 		context.ObjectsToUserObjects[object] = userObject
 		context.UserObjectsToObject[userObject] = object
@@ -74,17 +74,17 @@ function UserObject.new(contextOwner: Player | number, object: Object.Object): U
 		metatable.__index = function(self: UserObject, index: string)
 			local value: any
 			assert(type(index) == "string", string.format("%s is not a valid member of Object.", type(index)))
-			
+
 			-- Pick value (Mimicking a switch block)
 			repeat
 				if index == "ContextId" then
 					return getContextFromUserObject(self).UserId
 				end
-				
+
 				local object = getObjectFromUserObject(self)
 				local class = object.Class
 				local userClass = class and class.UserClass
-				
+
 				-- Only indices that do not begin with __ are allowed
 				if not string.find(index, "^__") then
 					-- UserClass index
@@ -97,7 +97,7 @@ function UserObject.new(contextOwner: Player | number, object: Object.Object): U
 						if rawequal(value, nil) then
 							value = userClass[index]
 						end
-						
+
 						if not rawequal(value, nil) then
 							-- Wrap functions (user class)
 							if type(value) == "function" then
@@ -110,7 +110,7 @@ function UserObject.new(contextOwner: Player | number, object: Object.Object): U
 							break
 						end
 					end
-					
+
 					-- Direct access to object fields & methods
 					if DIRECT_GET_ALLOW_LIST[index] then
 						value = object[index]
@@ -120,7 +120,7 @@ function UserObject.new(contextOwner: Player | number, object: Object.Object): U
 					end
 				end
 			until true
-			
+
 			-- If a value exists, we may need to wrap it
 			if not rawequal(value, nil) then
 				-- Wrap functions
@@ -140,7 +140,7 @@ function UserObject.new(contextOwner: Player | number, object: Object.Object): U
 		end
 		metatable.__newindex = function(self: UserObject, index: string, value: any)
 			assert(type(index) == "string", string.format("%s is not a valid member of Object.", type(index)))
-			
+
 			local object = getObjectFromUserObject(self)
 			local class = object.Class
 			local userClass = class and class.UserClass

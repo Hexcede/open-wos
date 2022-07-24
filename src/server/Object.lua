@@ -60,7 +60,7 @@ function Object:__index(index: string)
 	assert(type(index) == "string", string.format("%s is not a valid member of Object.", type(index)))
 
 	local publicFields = Object.GetPublicFields(self)
-	
+
 	-- Check against subclass
 	local class = publicFields.Class
 	if class then
@@ -77,7 +77,7 @@ function Object:__index(index: string)
 			return value
 		end
 	end
-	
+
 	-- Check against public object metadata
 	value = publicFields[index]
 	if not rawequal(value, nil) then
@@ -127,11 +127,11 @@ function Object.fuzzySearch(query: string): string
 			})
 		end
 	end
-	
+
 	table.sort(results, function(a, b)
 		return a.Index < b.Index
 	end)
-	
+
 	local result = results[1]
 	if result then
 		return result.ObjectName
@@ -157,7 +157,7 @@ end
 function Object.partCount(objectName: string): number
 	local target = objectFolder:FindFirstChild(objectName)
 	assert(target, string.format("%s is not a valid object.", objectName))
-	
+
 	local partCount = target:IsA("BasePart") and 1 or 0
 	for _, descendant in ipairs(target:GetDescendants()) do
 		if descendant:IsA("BasePart") then
@@ -174,40 +174,40 @@ end
 function Object.new(objectName: string): Object
 	local target = Object.getModel(objectName)
 	local reference = target:Clone()
-	
+
 	-- Find class
 	local Class = Object.findClass(objectName)
-	
+
 	-- Create public metadata
 	local publicFields = {
 		ClassName = objectName;
 		Class = Class;
 		State = {};
 	}
-	
+
 	-- Create proxy
 	local object = newproxy(true) :: Object
 	local objectMetatable = getmetatable(object :: any)
-	
+
 	-- Copy metatable
 	for index, value in pairs(Object) do
 		objectMetatable[index] = value
 	end
-	
+
 	-- Map object & metadata to world object and vice versa
 	byInstance[reference] = object
 	toInstance[object] = reference
 	toPublicFields[object] = publicFields
-	
+
 	-- When the physical world object is destroyed, clean up data
 	reference.Destroying:Connect(function()
 		byInstance[reference] = nil
 		toInstance[object] = nil
 		toPublicFields[object] = nil
 	end)
-	
+
 	CollectionService:AddTag(reference, "Object")
-	
+
 	if Class and Class.Init then
 		Class.Init(object)
 	end

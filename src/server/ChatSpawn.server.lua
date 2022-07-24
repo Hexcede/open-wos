@@ -13,7 +13,7 @@ local commands = {
 		if amount ~= amount then
 			amount = 1
 		end
-		
+
 		local character = player.Character
 		if not character then
 			return
@@ -33,7 +33,7 @@ local commands = {
 		if amount ~= amount then
 			amount = 1
 		end
-		
+
 		local character = player.Character
 		if not character then
 			return
@@ -46,7 +46,7 @@ local commands = {
 		if cost == 0 then
 			amount = math.clamp(amount, 1, 10)
 		end
-		
+
 		local resultCount = 0
 		while resultCount < amount do
 			local results = assert(Crafting:CraftRecipe(cframe, recipe, CRAFT_RADIUS, player.UserId), "Not enough resources to craft.")

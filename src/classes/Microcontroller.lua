@@ -20,10 +20,10 @@ function UMicrocontroller.Execute(self: Object.Object, userObject: UserObject.Us
 		-- Kill any old instance of the sandbox
 		runningSandbox:Terminate()
 	end
-	
+
 	local sandbox = H6x.Sandbox.new()
 	self.State.Sandbox = sandbox
-	
+
 	-- Replace all objects with UserObjects by this controller's context
 	sandbox:AddRule({
 		Rule = "Inject";
@@ -37,7 +37,7 @@ function UMicrocontroller.Execute(self: Object.Object, userObject: UserObject.Us
 		end
 	})
 	sandbox:SetScript(userObject)
-	
+
 	-- Execute the code
 	local code = self:GetConfig("Code")
 	if code then
@@ -53,9 +53,9 @@ local Microcontroller = {
 
 function Microcontroller.Init(self: Object.Object)
 	local userObject: UserObject.UserObject = UserObject.new(0, self)
-	
+
 	local worldObject = self:GetReference()
-	
+
 	local function executeCode()
 		if worldObject:IsDescendantOf(workspace) then
 			-- Do not allow the microcontroller to be re-ran too frequently
@@ -68,9 +68,9 @@ function Microcontroller.Init(self: Object.Object)
 			end
 		end
 	end
-	
+
 	self:GetConfigChangedSignal("Code"):Connect(executeCode)
-	
+
 	-- Defer until after creation
 	task.defer(function()
 		executeCode()

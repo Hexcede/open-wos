@@ -53,18 +53,18 @@ UserInputService.InputEnded:Connect(onInputEnded)
 
 local style =
 {
-	GameTool = 
+	GameTool =
 	{
 		Icon = "rbxassetid://1048129653";
 		HoverColor = Color3.fromRGB(25,153,255);
-		Cursors = 
+		Cursors =
 		{
 			Idle = "rbxassetid://1000000";
 			Hover = "rbxasset://textures/DragCursor.png";
 			Grab = "rbxasset://textures/GrabRotateCursor.png";
 		};
 	};
-	Clone = 
+	Clone =
 	{
 		Icon = "rbxasset://textures/Clone.png";
 		HoverColor = Color3.fromRGB(25,153,255);
@@ -72,7 +72,7 @@ local style =
 		{
 			Idle = "rbxasset://textures/CloneCursor.png";
 			Hover = "rbxassetid://1048136830";
-			Grab = "rbxasset://textures/GrabRotateCursor.png";		
+			Grab = "rbxasset://textures/GrabRotateCursor.png";
 		}
 	};
 	Hammer =
@@ -80,7 +80,7 @@ local style =
 		Icon = "rbxasset://textures/Hammer.png";
 		HoverColor = Color3.new(1,0.5,0);
 		CanShowWithHover = true;
-		Cursors = 
+		Cursors =
 		{
 			Idle = "rbxasset://textures/HammerCursor.png";
 			Hover = "rbxasset://textures/HammerOverCursor.png";
@@ -189,29 +189,29 @@ local function startDraggerAction(mouseObject)
 	if not rootPart or not (rootPart == mouseObject or rootPart:IsDescendantOf(mouseObject)) then
 		return
 	end
-	
+
 	if mode == "Hammer" then
 		gateway:InvokeServer("RequestDelete", mouseObject)
 		return
 	end
-	
+
 	local pointOnMousePart = rootPart.CFrame:ToObjectSpace(mouse.Hit).Position
 	local canDrag, dragKey, mouseObject = gateway:InvokeServer("GetKey", mouseObject, mode == "Clone")
-	
+
 	if canDrag then
 		local parts = getPartsInObject(mouseObject)
-		
+
 		selection.Adornee = mouseObject
 		selection.Transparency = 0
 		down = true
 		currentKey = dragKey
 		mouse.Icon = getIcon("Grab")
 		Dragger:MouseDown(rootPart, pointOnMousePart, parts)
-		
+
 		local parentThread = coroutine.running()
-		
+
 		local pivot = mouseObject:GetPivot()
-		
+
 		local lastSubmit = 0
 		RunService:BindToRenderStep("Dragger", Enum.RenderPriority.Input.Value + 1, function()
 			if not down then
@@ -225,7 +225,7 @@ local function startDraggerAction(mouseObject)
 			if mouseObject and currentKey then
 				mouseObject:PivotTo(pivot)
 			end
-			
+
 			local now = os.clock()
 			Dragger:MouseMove(mouse.UnitRay)
 
@@ -237,7 +237,7 @@ local function startDraggerAction(mouseObject)
 				end
 
 				pivot = mouseObject:GetPivot()
-				
+
 				local isColliding = doesCollide(parts)
 				if not isColliding then
 					if now - lastSubmit > updateDelay or not down then
@@ -294,7 +294,7 @@ local function popConnections()
 end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Tool 
+-- Tool
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function onEquipped(newMouse)
