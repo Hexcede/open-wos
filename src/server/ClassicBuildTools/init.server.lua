@@ -230,9 +230,9 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 		
 		if asClone then
 			if playerIsUsingTool(player, "Clone") then
-				local newPart = object:Clone()
-				newPart:BreakJoints()
-				newPart.Parent = workspace
+				local newObject = object:Clone()
+				newObject:BreakJoints()
+				newObject.Parent = workspace
 				
 				local copySound = Instance.new("Sound")
 				copySound.SoundId = "rbxasset://sounds/electronicpingshort.wav"
@@ -240,7 +240,7 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 				copySound.Archivable = false
 				copySound:Play()
 				
-				worldObject = newPart
+				worldObject = newObject
 				return false
 			else
 				return false

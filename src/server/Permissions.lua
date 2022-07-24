@@ -1,16 +1,16 @@
 local Permissions = {}
 
 -- TODO
-function Permissions:CanDrag(userId: number, part: Instance)
+function Permissions:CanDrag(userId: number, worldObject: Instance)
 	return true
 end
-function Permissions:CanDelete(userId: number, part: Instance)
+function Permissions:CanDelete(userId: number, worldObject: Instance)
 	return true
 end
-function Permissions:CanModify(userId: number, part: Instance)
+function Permissions:CanModify(userId: number, worldObject: Instance)
 	return true
 end
-function Permissions:CanInteract(userId: number, part: Instance)
+function Permissions:CanInteract(userId: number, worldObject: Instance)
 	return true
 end
 

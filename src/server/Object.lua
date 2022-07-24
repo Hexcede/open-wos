@@ -1,7 +1,7 @@
 --!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
-local partFolder = ReplicatedStorage:WaitForChild("Parts")
+local objectFolder = ReplicatedStorage:WaitForChild("Parts")
 local classFolder = ReplicatedStorage:WaitForChild("Classes")
 
 local byInstance: {[Instance]: Object} = {}
@@ -57,7 +57,7 @@ function Object:__invalidIndex(index: any)
 end
 function Object:__index(index: string)
 	local value: any
-	assert(type(index) == "string", string.format("Attempt to index Part object with %s.", type(index)))
+	assert(type(index) == "string", string.format("%s is not a valid member of Object.", type(index)))
 
 	local publicFields = Object.GetPublicFields(self)
 	
@@ -78,7 +78,7 @@ function Object:__index(index: string)
 		end
 	end
 	
-	-- Check against public part metadata
+	-- Check against public object metadata
 	value = publicFields[index]
 	if not rawequal(value, nil) then
 		return value
@@ -86,7 +86,7 @@ function Object:__index(index: string)
 
 	local reference = Object.GetReference(self) :: any
 
-	-- Check against part properties
+	-- Check against object properties
 	value = reference[index]
 	if not rawequal(value, nil) then
 		if type(value) == "function" then
@@ -115,15 +115,15 @@ function Object.fromReference(reference: Instance): Object?
 end
 
 function Object.fuzzySearch(query: string): string
-	local parts = partFolder:GetChildren()
+	local objects = objectFolder:GetChildren()
 	local results = {}
-	for _, part in ipairs(parts) do
-		local partName = part.Name
-		local findIndex = string.find(string.lower(partName), string.lower(query), 1, true)
+	for _, object in ipairs(objects) do
+		local objectName = object.Name
+		local findIndex = string.find(string.lower(objectName), string.lower(query), 1, true)
 		if findIndex then
 			table.insert(results, {
 				Index = findIndex;
-				PartName = partName;
+				ObjectName = objectName;
 			})
 		end
 	end
@@ -134,29 +134,29 @@ function Object.fuzzySearch(query: string): string
 	
 	local result = results[1]
 	if result then
-		return result.PartName
+		return result.ObjectName
 	end
-	error(string.format("%s is not a valid part.", query))
+	error(string.format("%s is not a valid object.", query))
 end
 
-function Object.findClass(partName: string)
-	local class = classFolder:FindFirstChild(partName, true)
+function Object.findClass(objectName: string)
+	local class = classFolder:FindFirstChild(objectName, true)
 	if class and class:IsA("ModuleScript") then
 		return require(class)
 	end
 	return nil
 end
 
-function Object.isPart(part: Object | any): boolean
-	if toInstance[part] then
+function Object.isObject(object: Object | any): boolean
+	if toInstance[object] then
 		return true
 	end
 	return false
 end
 
-function Object.partCount(partName: string): number
-	local target = partFolder:FindFirstChild(partName)
-	assert(target, string.format("%s is not a valid part.", partName))
+function Object.partCount(objectName: string): number
+	local target = objectFolder:FindFirstChild(objectName)
+	assert(target, string.format("%s is not a valid object.", objectName))
 	
 	local partCount = target:IsA("BasePart") and 1 or 0
 	for _, descendant in ipairs(target:GetDescendants()) do
@@ -167,52 +167,51 @@ function Object.partCount(partName: string): number
 	return partCount
 end
 
-function Object.getModel(partName: string): PVInstance
-	return assert(partFolder:FindFirstChild(partName), string.format("%s is not a valid part.", partName))
+function Object.getModel(objectName: string): PVInstance
+	return assert(objectFolder:FindFirstChild(objectName), string.format("%s is not a valid object.", objectName))
 end
 
-function Object.new(partName: string): Object
-	local target = Object.getModel(partName)
+function Object.new(objectName: string): Object
+	local target = Object.getModel(objectName)
 	local reference = target:Clone()
 	
 	-- Find class
-	local Class = Object.findClass(partName)
+	local Class = Object.findClass(objectName)
 	
 	-- Create public metadata
 	local publicFields = {
-		ClassName = partName;
+		ClassName = objectName;
 		Class = Class;
 		State = {};
 	}
 	
 	-- Create proxy
-	local part = newproxy(true) :: Object
-	local partMetatable = getmetatable(part :: any)
+	local object = newproxy(true) :: Object
+	local objectMetatable = getmetatable(object :: any)
 	
 	-- Copy metatable
 	for index, value in pairs(Object) do
-		partMetatable[index] = value
+		objectMetatable[index] = value
 	end
 	
-	-- Map object & metadata to part and vice versa
-	byInstance[reference] = part
-	toInstance[part] = reference
-	toPublicFields[part] = publicFields
+	-- Map object & metadata to world object and vice versa
+	byInstance[reference] = object
+	toInstance[object] = reference
+	toPublicFields[object] = publicFields
 	
-	-- When the physical part is destroyed, clean up data
+	-- When the physical world object is destroyed, clean up data
 	reference.Destroying:Connect(function()
 		byInstance[reference] = nil
-		toInstance[part] = nil
-		toPublicFields[part] = nil
+		toInstance[object] = nil
+		toPublicFields[object] = nil
 	end)
 	
 	CollectionService:AddTag(reference, "Object")
 	
 	if Class and Class.Init then
-		Class.Init(part)
+		Class.Init(object)
 	end
-
-	return part
+	return object
 end
 
 return table.freeze(Object)

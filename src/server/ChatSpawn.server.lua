@@ -8,7 +8,7 @@ local Crafting = require(ServerScriptService:WaitForChild("Crafting"))
 
 -- TODO: Cmdr
 local commands = {
-	["/s"] = function(player: Player, partName: string, amount: number)
+	["/s"] = function(player: Player, objectName: string, amount: number)
 		amount = if amount then tonumber(amount) or 1 else 1
 		if amount ~= amount then
 			amount = 1
@@ -19,11 +19,11 @@ local commands = {
 			return
 		end
 
-		print("Spawn", partName, amount)
-		partName = Object.fuzzySearch(partName)
+		print("Spawn", objectName, amount)
+		objectName = Object.fuzzySearch(objectName)
 		Crafting:Spawn({
 			{
-				Resource = partName;
+				Resource = objectName;
 				Amount = math.clamp(amount, 1, 10);
 			}
 		}, character:GetPivot() * CFrame.new(0, 0, -5))

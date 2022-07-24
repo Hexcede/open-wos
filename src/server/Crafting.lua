@@ -26,21 +26,21 @@ export type Recipe = {
 local Crafting = {}
 
 local function filterByResource(parts: {Instance}, resourceType: string)
-	local partCount = 0
+	local objectCount = 0
 	for _, reference in ipairs(parts) do
-		local part = Object.fromReference(reference)
-		if part then
-			if part.ClassName == resourceType then
-				partCount += 1
+		local object = Object.fromReference(reference)
+		if object then
+			if object.ClassName == resourceType then
+				objectCount += 1
 			end
 		end
 	end
 	
-	local filtered = table.create(partCount)
+	local filtered = table.create(objectCount)
 	for _, reference in ipairs(parts) do
-		local part = Object.fromReference(reference)
-		if part then
-			if part.ClassName == resourceType then
+		local object = Object.fromReference(reference)
+		if object then
+			if object.ClassName == resourceType then
 				table.insert(filtered, reference)
 			end
 		end
@@ -49,7 +49,7 @@ local function filterByResource(parts: {Instance}, resourceType: string)
 end
 
 function Crafting:FindResourcesAround(resourceType: string, position: Vector3, radius: number, amount: number, ignoreObjects: {Object.Object}?, userId: number?): {Object.Object}
-	assert(Object.getModel(resourceType), string.format("Invalid part class %s", resourceType))
+	assert(Object.getModel(resourceType), string.format("Invalid class %s", resourceType))
 	
 	local resourcePartCount = Object.partCount(resourceType)
 
@@ -85,7 +85,7 @@ function Crafting:FindResourcesAround(resourceType: string, position: Vector3, r
 					continue
 				end
 				
-				-- Insert part
+				-- Insert object
 				table.insert(objects, object)
 				if #objects >= amount then
 					break
@@ -123,7 +123,7 @@ end
 
 local craftRandom = Random.new()
 function Crafting:Spawn(results: {Result}, cframe: CFrame): {Object.Object}
-	local resultParts = table.create(Crafting.countResults(results))
+	local resultObjects = table.create(Crafting.countResults(results))
 	for _, result in ipairs(results) do
 		-- Determine resource & amount
 		local amount: number
@@ -139,21 +139,21 @@ function Crafting:Spawn(results: {Result}, cframe: CFrame): {Object.Object}
 			successChance = result.SuccessChance or 1
 		end
 		
-		-- Create result parts
+		-- Create result objects
 		for i=1, amount do
 			if craftRandom:NextNumber() <= successChance then
-				table.insert(resultParts, Object.new(resource))
+				table.insert(resultObjects, Object.new(resource))
 			end
 		end
 	end
 
-	-- Move parts to workspace
-	for _, part in ipairs(resultParts) do
-		part:PivotTo(cframe * CFrame.new(0, 0, -5))
-		part.Parent = workspace
+	-- Move objects to workspace
+	for _, object in ipairs(resultObjects) do
+		object:PivotTo(cframe * CFrame.new(0, 0, -5))
+		object.Parent = workspace
 	end
 	
-	return resultParts
+	return resultObjects
 end
 
 function Crafting:CraftRecipe(cframe: CFrame, recipe: Recipe, radius: number, userId: number?): ({Object.Object}?, {Ingredient}?)

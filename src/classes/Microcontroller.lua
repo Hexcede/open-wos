@@ -30,7 +30,7 @@ function UMicrocontroller.Execute(self: Object.Object, userObject: UserObject.Us
 		Mode = "ByTypeOf";
 		Target = "userdata";
 		Callback = function(target): any
-			if Object.isPart(target) then
+			if Object.isObject(target) then
 				return UserObject.new(userObject.ContextId, target :: any)
 			end
 			return target
@@ -54,10 +54,10 @@ local Microcontroller = {
 function Microcontroller.Init(self: Object.Object)
 	local userObject: UserObject.UserObject = UserObject.new(0, self)
 	
-	local part = self:GetReference()
+	local worldObject = self:GetReference()
 	
 	local function executeCode()
-		if part:IsDescendantOf(workspace) then
+		if worldObject:IsDescendantOf(workspace) then
 			-- Do not allow the microcontroller to be re-ran too frequently
 			if not self.State.RunTime or (os.clock() - self.State.RunTime) > RUN_DELAY then
 				-- After spawning in the world
@@ -74,7 +74,7 @@ function Microcontroller.Init(self: Object.Object)
 	-- Defer until after creation
 	task.defer(function()
 		executeCode()
-		part.AncestryChanged:Connect(executeCode)
+		worldObject.AncestryChanged:Connect(executeCode)
 	end)
 end
 
