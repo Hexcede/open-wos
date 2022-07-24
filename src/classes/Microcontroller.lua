@@ -14,7 +14,7 @@ local MS_TIMEOUT = 20 -- How many milliseconds the sandbox may execute for
 -- User class
 local UMicrocontroller = {}
 
-function UMicrocontroller.Execute(self: Object.PartObject, userObject: UserObject.UserObject)
+function UMicrocontroller.Execute(self: Object.Object, userObject: UserObject.UserObject)
 	local runningSandbox = self.State.Sandbox
 	if runningSandbox then
 		-- Kill any old instance of the sandbox
@@ -51,7 +51,7 @@ local Microcontroller = {
 	UserClass = UMicrocontroller
 }
 
-function Microcontroller.Init(self: Object.PartObject)
+function Microcontroller.Init(self: Object.Object)
 	local userObject: UserObject.UserObject = UserObject.new(0, self)
 	
 	local part = self:GetReference()

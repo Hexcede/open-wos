@@ -48,7 +48,7 @@ local function filterByResource(parts: {Instance}, resourceType: string)
 	return filtered
 end
 
-function Crafting:FindResourcesAround(resourceType: string, position: Vector3, radius: number, amount: number, ignoreObjects: {Object.PartObject}?, userId: number?): {Object.PartObject}
+function Crafting:FindResourcesAround(resourceType: string, position: Vector3, radius: number, amount: number, ignoreObjects: {Object.Object}?, userId: number?): {Object.Object}
 	assert(Object.getModel(resourceType), string.format("Invalid part class %s", resourceType))
 	
 	local resourcePartCount = Object.partCount(resourceType)
@@ -58,7 +58,7 @@ function Crafting:FindResourcesAround(resourceType: string, position: Vector3, r
 	searchParams.FilterDescendantsInstances = filterByResource(CollectionService:GetTagged("Object"), resourceType)
 	searchParams.MaxParts = amount * resourcePartCount
 	
-	local partObjects: {Object.PartObject} = table.create(amount)
+	local partObjects: {Object.Object} = table.create(amount)
 	local parts = workspace:GetPartBoundsInRadius(position, radius, searchParams)
 	for _, part in ipairs(parts) do
 		while part and not Object.fromReference(part) do
@@ -97,7 +97,7 @@ function Crafting:FindResourcesAround(resourceType: string, position: Vector3, r
 	return partObjects
 end
 
-function Crafting:Consume(resources: {Object.PartObject})
+function Crafting:Consume(resources: {Object.Object})
 	for _, resource in ipairs(resources) do
 		resource:Destroy()
 	end
@@ -122,7 +122,7 @@ function Crafting.countResults(results: {Result}): number
 end
 
 local craftRandom = Random.new()
-function Crafting:Spawn(results: {Result}, cframe: CFrame): {Object.PartObject}
+function Crafting:Spawn(results: {Result}, cframe: CFrame): {Object.Object}
 	local resultParts = table.create(Crafting.countResults(results))
 	for _, result in ipairs(results) do
 		-- Determine resource & amount
@@ -156,7 +156,7 @@ function Crafting:Spawn(results: {Result}, cframe: CFrame): {Object.PartObject}
 	return resultParts
 end
 
-function Crafting:CraftRecipe(cframe: CFrame, recipe: Recipe, radius: number, userId: number?): ({Object.PartObject}?, {Ingredient}?)
+function Crafting:CraftRecipe(cframe: CFrame, recipe: Recipe, radius: number, userId: number?): ({Object.Object}?, {Ingredient}?)
 	local ingredients = {}
 	for _, ingredient in ipairs(recipe.Ingredients) do
 		local amount = ingredient.Amount or 1
@@ -196,7 +196,7 @@ function Crafting:CraftRecipe(cframe: CFrame, recipe: Recipe, radius: number, us
 end
 
 -- TODO
-function Crafting:CraftBatch(player: Player, query: {Result}): {Object.PartObject}
+function Crafting:CraftBatch(player: Player, query: {Result}): {Object.Object}
 	return {}
 end
 

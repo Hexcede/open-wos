@@ -19,8 +19,8 @@ export type UserObject = {
 }
 export type PlayerContext = {
 	UserId: number;
-	PartsToUserObjects: {[Object.PartObject]: UserObject};
-	UserObjectsToPart: {[UserObject]: Object.PartObject}
+	PartsToUserObjects: {[Object.Object]: UserObject};
+	UserObjectsToPart: {[UserObject]: Object.Object}
 }
 
 local UserObject = {}
@@ -51,13 +51,13 @@ local function getContextFromUserObject(userObject: UserObject): PlayerContext
 end
 UserObject.getContextFromUserObject = getContextFromUserObject;
 
-local function getPartFromUserObject(userObject: UserObject): Object.PartObject
+local function getPartFromUserObject(userObject: UserObject): Object.Object
 	local userObjectsToPart = getContextFromUserObject(userObject).UserObjectsToPart
 	return assert(userObjectsToPart[userObject], "Invalid UserObject.")
 end
 UserObject.getPartFromUserObject = getPartFromUserObject;
 
-function UserObject.new(contextOwner: Player | number, part: Object.PartObject): UserObject
+function UserObject.new(contextOwner: Player | number, part: Object.Object): UserObject
 	local context = UserObject.getContext(contextOwner)
 	
 	local userObject = context.PartsToUserObjects[part]

@@ -4,15 +4,15 @@ local CollectionService = game:GetService("CollectionService")
 local partFolder = ReplicatedStorage:WaitForChild("Parts")
 local classFolder = ReplicatedStorage:WaitForChild("Classes")
 
-local byInstance: {[Instance]: PartObject} = {}
-local toInstance: {[PartObject]: Instance} = {}
-local toPublicFields: {[PartObject]: PartObject} = {}
+local byInstance: {[Instance]: Object} = {}
+local toInstance: {[Object]: Instance} = {}
+local toPublicFields: {[Object]: Object} = {}
 
 setmetatable(toInstance, table.freeze({__mode="k"}))
 setmetatable(toPublicFields, table.freeze({__mode="k"}))
 
 -- Types
-export type PartObject = {
+export type Object = {
 	ClassName: string;
 	Class: {[string]: any}?;
 	[string]: any;
@@ -110,7 +110,7 @@ function Object:__tostring()
 	return string.format("%s<X>", self.ClassName)
 end
 
-function Object.fromReference(reference: Instance): PartObject?
+function Object.fromReference(reference: Instance): Object?
 	return byInstance[reference]
 end
 
@@ -147,7 +147,7 @@ function Object.findClass(partName: string)
 	return nil
 end
 
-function Object.isPart(part: PartObject | any): boolean
+function Object.isPart(part: Object | any): boolean
 	if toInstance[part] then
 		return true
 	end
@@ -171,7 +171,7 @@ function Object.getModel(partName: string): PVInstance
 	return assert(partFolder:FindFirstChild(partName), string.format("%s is not a valid part.", partName))
 end
 
-function Object.new(partName: string): PartObject
+function Object.new(partName: string): Object
 	local target = Object.getModel(partName)
 	local reference = target:Clone()
 	
@@ -186,7 +186,7 @@ function Object.new(partName: string): PartObject
 	}
 	
 	-- Create proxy
-	local part = newproxy(true) :: PartObject
+	local part = newproxy(true) :: Object
 	local partMetatable = getmetatable(part :: any)
 	
 	-- Copy metatable
