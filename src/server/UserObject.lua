@@ -38,7 +38,6 @@ function UserObject.getContext(contextOwner: Player | number)
 			ObjectsToUserObjects = {};
 			UserObjectsToObject = {};
 		}
-		assert(context)
 		setmetatable(context.ObjectsToUserObjects, {__mode="kv"})
 		setmetatable(context.UserObjectsToObject, {__mode="kv"})
 		playerContexts[userId] = context
@@ -63,8 +62,6 @@ function UserObject.new(contextOwner: Player | number, object: Object.Object): U
 	local userObject = context.ObjectsToUserObjects[object]
 	if not userObject then
 		userObject = newproxy(true)
-		assert(userObject)
-
 		local metatable = getmetatable(userObject)
 
 		contextsByUserObject[userObject] = context
