@@ -28,7 +28,7 @@ local Crafting = {}
 local function filterByResource(parts: {Instance}, resourceType: string)
 	local partCount = 0
 	for _, reference in ipairs(parts) do
-		local part = ParObjectt.fromReference(reference)
+		local part = Object.fromReference(reference)
 		if part then
 			if part.ClassName == resourceType then
 				partCount += 1
