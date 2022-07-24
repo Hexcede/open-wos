@@ -191,12 +191,12 @@ local function startDraggerAction(mouseObject)
 	end
 	
 	if mode == "Hammer" then
-		gateway:InvokeServer("RequestDelete",mouseObject)
+		gateway:InvokeServer("RequestDelete", mouseObject)
 		return
 	end
 	
 	local pointOnMousePart = rootPart.CFrame:ToObjectSpace(mouse.Hit).Position
-	local canDrag,dragKey,mouseObject = gateway:InvokeServer("GetKey", mouseObject, mode == "Clone")
+	local canDrag, dragKey, mouseObject = gateway:InvokeServer("GetKey", mouseObject, mode == "Clone")
 	
 	if canDrag then
 		local parts = getPartsInObject(mouseObject)
