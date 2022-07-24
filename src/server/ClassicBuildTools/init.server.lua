@@ -87,7 +87,7 @@ local function canGiveKey(player: Player, object: Instance)
 	end
 
 	-- Player cannot drag object
-	if not Permissions:CanDrag(player, object) then
+	if not Permissions:CanDrag(player.UserId, object) then
 		return false
 	end
 
@@ -109,7 +109,7 @@ local function canDelete(player: Player, object: Instance)
 		return false
 	end
 
-	if not Permissions:CanDelete(player, object) then
+	if not Permissions:CanDelete(player.UserId, object) then
 		return false
 	end
 
