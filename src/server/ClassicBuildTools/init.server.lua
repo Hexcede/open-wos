@@ -146,12 +146,6 @@ local function getPartsInObject(object): {BasePart}
 	return parts
 end
 
---local function claimAssembly(player: Player, part: BasePart)
---	if part:CanSetNetworkOwnership() then
---		part:SetNetworkOwner(player)
---	end
---end
-
 local function removeObjectKey(key: string, joinSurfaces: boolean)
 	local data = activeKeys[key]
 
@@ -182,7 +176,6 @@ local function removeObjectKey(key: string, joinSurfaces: boolean)
 					part.CanTouch = data.CanTouch
 					part.CanQuery = data.CanQuery
 					part.CollisionGroupId = data.CollisionGroupId
-					--claimAssembly(player, part)
 				end
 			end
 
@@ -263,9 +256,6 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 				end)
 				swingBuildTool(player)
 
-				--claimAssembly(player, part)
-				
-				--part:BreakJoints()
 				local parts = getPartsInObject(worldObject)
 				workspace:UnjoinFromOutsiders(parts)
 
@@ -342,8 +332,6 @@ function DraggerGateway.OnServerInvoke(player, request, ...)
 				s.Parent = object
 
 				swingBuildTool(player)
-				--claimAssembly(player, object)
-				
 				object:Destroy()
 			end
 
