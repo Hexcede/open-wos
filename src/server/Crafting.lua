@@ -237,4 +237,4 @@ function Crafting.getRecipe(recipeName: string): Recipe
 	return table.freeze(recipe)
 end
 
-return Crafting
+return table.freeze(Crafting)
