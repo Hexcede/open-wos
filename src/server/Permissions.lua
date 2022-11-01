@@ -14,4 +14,4 @@ function Permissions:CanInteract(userId: number, worldObject: Instance)
 	return true
 end
 
-return Permissions
+return table.freeze(Permissions)
