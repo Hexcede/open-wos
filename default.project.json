@@ -6,14 +6,17 @@
 		"ReplicatedStorage": {
 			"$className": "ReplicatedStorage",
 			"Objects": {
+				"$ignoreUnknownInstances": true,
 				"$className": "Folder",
 				"$path": "src/objects"
 			},
 			"Recipes": {
+				"$ignoreUnknownInstances": true,
 				"$className": "Folder",
 				"$path": "src/recipes"
 			},
 			"Classes": {
+				"$ignoreUnknownInstances": true,
 				"$className": "Folder",
 				"$path": "src/classes"
 			},
