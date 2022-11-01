@@ -1,4 +1,0 @@
-[tools]
-rojo = { github = "rojo-rbx/rojo", version = "7.2.1" }
-remodel = { github = "rojo-rbx/remodel", version = "0.10.0" }
-wally = { source = "UpliftGames/wally", version = "0.3.1" }

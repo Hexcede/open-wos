@@ -60,8 +60,8 @@ You may view the API reference [here (TBD)](#todo)
 ## TODO
 
 - [ ] Add `Contributing.md` (guidelines for contribution).
-- [ ] Minor refactoring.
-- [ ] Rename references for `Parts` -> `Objects`.
+- [x] Minor refactoring.
+- [x] Rename references for `Parts` -> `Objects`.
 - [ ] Implement Object serialization/deserialization
 - [ ] Implement user permissions APIs.
 - [ ] Re-introduce `Clone` tool (Utilizing crafting system).

@@ -1,69 +1,66 @@
 --!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
-local partFolder = ReplicatedStorage:WaitForChild("Parts")
+local objectFolder = ReplicatedStorage:WaitForChild("Objects")
 local classFolder = ReplicatedStorage:WaitForChild("Classes")
 
-local byInstance: {[Instance]: PartObject} = {}
-local toInstance: {[PartObject]: Instance} = {}
-local toPublicFields: {[PartObject]: PartObject} = {}
+local byInstance: {[Instance]: Object} = {}
+local toInstance: {[Object]: Instance} = {}
+local toPublicFields: {[Object]: Object} = {}
 
 setmetatable(toInstance, table.freeze({__mode="k"}))
 setmetatable(toPublicFields, table.freeze({__mode="k"}))
 
 -- Types
-export type PartObject = {
+export type Object = {
 	ClassName: string;
 	Class: {[string]: any}?;
 	[string]: any;
 }
 
 -- Private class
-local Part = {
+local Object = {
 	__metatable = "The metatable is locked.";
 }
 
-function Part:GetPublicFields()
+function Object:GetPublicFields()
 	return assert(toPublicFields[self], "Attempt to access a destroyed object.")
 end
-function Part:GetReference(): Instance
+function Object:GetReference(): Instance
 	return assert(toInstance[self], "Attempt to access a destroyed object.")
 end
-function Part:GetRecipe()
-	return nil
-end
 
-function Part:Clone()
+function Object:Clone()
 	-- TODO: Clone
 end
 
 local configKeyFormat = "CFG_%s"
 
-function Part:GetConfig(configIndex: string)
+function Object:GetConfig(configIndex: string)
 	local reference = self:GetReference()
 	assert(type(configIndex) == "string", "Config index must be a string.")
 	return reference:GetAttribute(string.format(configKeyFormat, configIndex))
 end
-function Part:SetConfig(configIndex: string, configValue: any)
+function Object:SetConfig(configIndex: string, configValue: any)
 	local reference = self:GetReference()
 	assert(type(configIndex) == "string", "Config index must be a string.")
 	reference:SetAttribute(string.format(configKeyFormat, configIndex), configValue)
 end
-function Part:GetConfigChangedSignal(configIndex: string)
+function Object:GetConfigChangedSignal(configIndex: string)
 	local reference = self:GetReference()
 	assert(type(configIndex) == "string", "Config index must be a string.")
 	return reference:GetAttributeChangedSignal(string.format(configKeyFormat, configIndex))
 end
 
-function Part:__invalidIndex(index: any)
+function Object:__invalidIndex(index: any)
 	error(string.format("Property %s is not a valid member of %s.", tostring(index), self.ClassName), 0)
 end
-function Part:__index(index: string)
+function Object:__index(index: string)
 	local value: any
-	assert(type(index) == "string", string.format("Attempt to index Part object with %s.", type(index)))
+	assert(type(index) == "string", string.format("%s is not a valid member of Object.", type(index)))
 
-	local publicFields = Part.GetPublicFields(self)
-	
+	local publicFields = Object.GetPublicFields(self)
+
 	-- Check against subclass
 	local class = publicFields.Class
 	if class then
@@ -75,21 +72,21 @@ function Part:__index(index: string)
 
 	-- Check against methods
 	if not string.find(index, "^__") then
-		value = Part[index]
+		value = Object[index]
 		if not rawequal(value, nil) then
 			return value
 		end
 	end
-	
-	-- Check against public part metadata
+
+	-- Check against public object metadata
 	value = publicFields[index]
 	if not rawequal(value, nil) then
 		return value
 	end
 
-	local reference = Part.GetReference(self) :: any
+	local reference = Object.GetReference(self) :: any
 
-	-- Check against part properties
+	-- Check against object properties
 	value = reference[index]
 	if not rawequal(value, nil) then
 		if type(value) == "function" then
@@ -101,66 +98,68 @@ function Part:__index(index: string)
 	end
 	return nil
 end
-function Part:__newindex(index: any, value: any)
+function Object:__newindex(index: any, value: any)
 	local reference = self:GetReference()
 	reference[index] = value
 end
 
-function Part.__eq(a, b)
+function Object.__eq(a, b)
 	return rawequal(a, b)
-end;
-function Part:__tostring()
+end
+function Object:__tostring()
 	return string.format("%s<X>", self.ClassName)
 end
 
-function Part.fromReference(reference: Instance): PartObject?
+function Object.fromReference(reference: Instance): Object?
 	return byInstance[reference]
 end
 
-function Part.fuzzySearch(query: string): string
-	local parts = partFolder:GetChildren()
+function Object.fuzzySearch(query: string): string
+	assert(typeof(query) == "string", string.format("Argument #1 to Object.fuzzySearch must be a string. Got '%s' instead", typeof(query)))
+
+	local objects = objectFolder:GetChildren()
 	local results = {}
-	for _, part in ipairs(parts) do
-		local partName = part.Name
-		local findIndex = string.find(string.lower(partName), string.lower(query), 1, true)
+	for _, object in ipairs(objects) do
+		local objectName = object.Name
+		local findIndex = string.find(string.lower(objectName), string.lower(query), 1, true)
 		if findIndex then
 			table.insert(results, {
 				Index = findIndex;
-				PartName = partName;
+				ObjectName = objectName;
 			})
 		end
 	end
-	
+
 	table.sort(results, function(a, b)
 		return a.Index < b.Index
 	end)
-	
+
 	local result = results[1]
 	if result then
-		return result.PartName
+		return result.ObjectName
 	end
-	error(string.format("%s is not a valid part.", query))
+	error(string.format("%s is not a valid object.", query))
 end
 
-function Part.findClass(partName: string)
-	local class = classFolder:FindFirstChild(partName, true)
+function Object.findClass(objectName: string)
+	local class = classFolder:FindFirstChild(objectName, true)
 	if class and class:IsA("ModuleScript") then
 		return require(class)
 	end
 	return nil
 end
 
-function Part.isPart(part: PartObject | any): boolean
-	if toInstance[part] then
+function Object.isObject(object: Object | any): boolean
+	if toInstance[object] then
 		return true
 	end
 	return false
 end
 
-function Part.partCount(partName: string): number
-	local target = partFolder:FindFirstChild(partName)
-	assert(target, string.format("%s is not a valid part.", partName))
-	
+function Object.partCount(objectName: string): number
+	local target = objectFolder:FindFirstChild(objectName)
+	assert(target, string.format("%s is not a valid object.", objectName))
+
 	local partCount = target:IsA("BasePart") and 1 or 0
 	for _, descendant in ipairs(target:GetDescendants()) do
 		if descendant:IsA("BasePart") then
@@ -170,52 +169,51 @@ function Part.partCount(partName: string): number
 	return partCount
 end
 
-function Part.getModel(partName: string): PVInstance
-	return assert(partFolder:FindFirstChild(partName), string.format("%s is not a valid part.", partName))
+function Object.getModel(objectName: string): PVInstance
+	return assert(objectFolder:FindFirstChild(objectName), string.format("%s is not a valid object.", objectName))
 end
 
-function Part.new(partName: string): PartObject
-	local target = Part.getModel(partName)
+function Object.new(objectName: string): Object
+	local target = Object.getModel(objectName)
 	local reference = target:Clone()
-	
+
 	-- Find class
-	local Class = Part.findClass(partName)
-	
+	local Class = Object.findClass(objectName)
+
 	-- Create public metadata
 	local publicFields = {
-		ClassName = partName;
+		ClassName = objectName;
 		Class = Class;
 		State = {};
 	}
-	
+
 	-- Create proxy
-	local part = newproxy(true) :: PartObject
-	local partMetatable = getmetatable(part :: any)
-	
+	local object = newproxy(true) :: Object
+	local objectMetatable = getmetatable(object :: any)
+
 	-- Copy metatable
-	for index, value in pairs(Part) do
-		partMetatable[index] = value
+	for index, value in pairs(Object) do
+		objectMetatable[index] = value
 	end
-	
-	-- Map object & metadata to part and vice versa
-	byInstance[reference] = part
-	toInstance[part] = reference
-	toPublicFields[part] = publicFields
-	
-	-- When the physical part is destroyed, clean up data
+
+	-- Map object & metadata to world object and vice versa
+	byInstance[reference] = object
+	toInstance[object] = reference
+	toPublicFields[object] = publicFields
+
+	-- When the physical world object is destroyed, clean up data
 	reference.Destroying:Connect(function()
 		byInstance[reference] = nil
-		toInstance[part] = nil
-		toPublicFields[part] = nil
+		toInstance[object] = nil
+		toPublicFields[object] = nil
 	end)
-	
-	CollectionService:AddTag(reference, "Object")
-	
-	if Class and Class.Init then
-		Class.Init(part)
-	end
 
-	return part
+	CollectionService:AddTag(reference, "Object")
+
+	if Class and Class.Init then
+		Class.Init(object)
+	end
+	return object
 end
 
-return table.freeze(Part)
+return table.freeze(Object)

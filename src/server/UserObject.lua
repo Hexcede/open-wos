@@ -1,7 +1,7 @@
 --!strict
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
-local Part = require(ServerScriptService:WaitForChild("Part"))
+local Object = require(ServerScriptService:WaitForChild("Object"))
 
 local DIRECT_GET_ALLOW_LIST = {
 	ClassName = true;
@@ -13,14 +13,14 @@ local DIRECT_GET_ALLOW_LIST = {
 
 -- Types
 export type UserObject = {
-	ClassName: string; -- ClassName of the underlying part
+	ClassName: string; -- ClassName of the underlying object
 	ContextId: number; -- UserId of the player who created this object
 	[string]: any;
 }
 export type PlayerContext = {
 	UserId: number;
-	PartsToUserObjects: {[Part.PartObject]: UserObject};
-	UserObjectsToPart: {[UserObject]: Part.PartObject}
+	ObjectsToUserObjects: {[Object.Object]: UserObject};
+	UserObjectsToObject: {[UserObject]: Object.Object}
 }
 
 local UserObject = {}
@@ -35,12 +35,11 @@ function UserObject.getContext(contextOwner: Player | number)
 	if not context then
 		context = {
 			UserId = userId;
-			PartsToUserObjects = {};
-			UserObjectsToPart = {};
+			ObjectsToUserObjects = {};
+			UserObjectsToObject = {};
 		}
-		assert(context)
-		setmetatable(context.PartsToUserObjects, {__mode="kv"})
-		setmetatable(context.UserObjectsToPart, {__mode="kv"})
+		setmetatable(context.ObjectsToUserObjects, {__mode="kv"})
+		setmetatable(context.UserObjectsToObject, {__mode="kv"})
 		playerContexts[userId] = context
 	end
 	return context
@@ -51,53 +50,51 @@ local function getContextFromUserObject(userObject: UserObject): PlayerContext
 end
 UserObject.getContextFromUserObject = getContextFromUserObject;
 
-local function getPartFromUserObject(userObject: UserObject): Part.PartObject
-	local userObjectsToPart = getContextFromUserObject(userObject).UserObjectsToPart
-	return assert(userObjectsToPart[userObject], "Invalid UserObject.")
+local function getObjectFromUserObject(userObject: UserObject): Object.Object
+	local userObjectsToObject = getContextFromUserObject(userObject).UserObjectsToObject
+	return assert(userObjectsToObject[userObject], "Invalid UserObject.")
 end
-UserObject.getPartFromUserObject = getPartFromUserObject;
+UserObject.getObjectFromUserObject = getObjectFromUserObject;
 
-function UserObject.new(contextOwner: Player | number, part: Part.PartObject): UserObject
+function UserObject.new(contextOwner: Player | number, object: Object.Object): UserObject
 	local context = UserObject.getContext(contextOwner)
-	
-	local userObject = context.PartsToUserObjects[part]
+
+	local userObject = context.ObjectsToUserObjects[object]
 	if not userObject then
 		userObject = newproxy(true)
-		assert(userObject)
-		
 		local metatable = getmetatable(userObject)
-		
+
 		contextsByUserObject[userObject] = context
-		context.PartsToUserObjects[part] = userObject
-		context.UserObjectsToPart[userObject] = part
+		context.ObjectsToUserObjects[object] = userObject
+		context.UserObjectsToObject[userObject] = object
 
 		metatable.__index = function(self: UserObject, index: string)
 			local value: any
-			assert(type(index) == "string", string.format("Attempt to index Part object with %s.", type(index)))
-			
+			assert(type(index) == "string", string.format("%s is not a valid member of Object.", type(index)))
+
 			-- Pick value (Mimicking a switch block)
 			repeat
 				if index == "ContextId" then
 					return getContextFromUserObject(self).UserId
 				end
-				
-				local part = getPartFromUserObject(self)
-				local class = part.Class
+
+				local object = getObjectFromUserObject(self)
+				local class = object.Class
 				local userClass = class and class.UserClass
-				
+
 				-- Only indices that do not begin with __ are allowed
 				if not string.find(index, "^__") then
 					-- UserClass index
 					if userClass then
 						local getter = userClass[string.format("__get_%s", index)]
 						if getter then
-							value = getter(part, index)
+							value = getter(object, index)
 						end
 
 						if rawequal(value, nil) then
 							value = userClass[index]
 						end
-						
+
 						if not rawequal(value, nil) then
 							-- Wrap functions (user class)
 							if type(value) == "function" then
@@ -110,39 +107,39 @@ function UserObject.new(contextOwner: Player | number, part: Part.PartObject): U
 							break
 						end
 					end
-					
-					-- Direct access to part fields & methods
+
+					-- Direct access to object fields & methods
 					if DIRECT_GET_ALLOW_LIST[index] then
-						value = part[index]
+						value = object[index]
 						if not rawequal(value, nil) then
 							break
 						end
 					end
 				end
 			until true
-			
+
 			-- If a value exists, we may need to wrap it
 			if not rawequal(value, nil) then
 				-- Wrap functions
 				if type(value) == "function" then
-					-- Replace method self with real part instead of UserObject
+					-- Replace method self with real object instead of UserObject
 					local method = value
 					value = function(methodSelf, ...)
 						if rawequal(methodSelf, self) then
-							methodSelf = part
+							methodSelf = object
 						end
 						return method(methodSelf, ...)
 					end
 				end
 			end
 			return value
-			--error(string.format("%s is not a valid member of Part.", index))
+			--error(string.format("%s is not a valid member of Object.", index))
 		end
 		metatable.__newindex = function(self: UserObject, index: string, value: any)
-			assert(type(index) == "string", string.format("Attempt to index Part object with %s.", type(index)))
-			
-			local part = getPartFromUserObject(self)
-			local class = part.Class
+			assert(type(index) == "string", string.format("%s is not a valid member of Object.", type(index)))
+
+			local object = getObjectFromUserObject(self)
+			local class = object.Class
 			local userClass = class and class.UserClass
 
 			-- Only indices that do not begin with __ are allowed
@@ -151,12 +148,12 @@ function UserObject.new(contextOwner: Player | number, part: Part.PartObject): U
 				if userClass then
 					local setter = userClass[string.format("__set_%s", index)]
 					if setter then
-						setter(part, self, index, value)
+						setter(object, self, index, value)
 						return
 					end
 				end
 			end
-			error(string.format("%s is not a valid member of Part.", index))
+			error(string.format("%s is not a valid member of Object.", index))
 		end
 		metatable.__tostring = function(self)
 			return string.format("%s<%d>", self.ClassName, self.ContextId)
@@ -171,7 +168,7 @@ Players.PlayerRemoving:Connect(function(player)
 	local userId = player.UserId
 	local context = playerContexts[userId]
 	if context then
-		local partsToUserObjects = context.PartsToUserObjects
+		local objectsToUserObjects = context.ObjectsToUserObjects
 		playerContexts[userId] = nil
 	end
 end)
