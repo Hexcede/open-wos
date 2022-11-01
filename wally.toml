@@ -6,3 +6,4 @@ realm = "shared"
 
 [dependencies]
 H6x = "hexcede/h6x@2.1.3"
+Matter = "evaera/matter@0.6.2"
