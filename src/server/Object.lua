@@ -115,6 +115,8 @@ function Object.fromReference(reference: Instance): Object?
 end
 
 function Object.fuzzySearch(query: string): string
+	assert(typeof(query) == "string", string.format("Argument #1 to Object.fuzzySearch must be a string. Got '%s' instead", typeof(query)))
+
 	local objects = objectFolder:GetChildren()
 	local results = {}
 	for _, object in ipairs(objects) do
