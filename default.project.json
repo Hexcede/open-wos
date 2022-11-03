@@ -32,6 +32,12 @@
 
 			"$properties": {
 				"LoadStringEnabled": true
+			},
+
+			"Systems": {
+				"$ignoreUnknownInstances": true,
+				"$className": "Folder",
+				"$path": "src/systems"
 			}
 		},
 
