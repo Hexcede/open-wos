@@ -4,10 +4,12 @@ version = "1.0.0"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
-[dev-dependencies]
-Plasma = "evaera/plasma@0.4.2"
-Rewire = "sayhisam1/rewire@0.3.0"
+[place]
+shared-packages = "game.ReplicatedStorage.Packages"
 
 [dependencies]
 H6x = "hexcede/h6x@2.1.3"
+Plasma = "evaera/plasma@0.4.2"
 Matter = "evaera/matter@0.6.2"
+Rewire = "sayhisam1/rewire@0.3.0"
+chlorine = "hexcede/chlorine@0.0.1"
