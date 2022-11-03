@@ -6,111 +6,21 @@ local classFolder = ReplicatedStorage:WaitForChild("Classes")
 
 local byInstance: {[Instance]: Object} = {}
 local toInstance: {[Object]: Instance} = {}
-local toPublicFields: {[Object]: Object} = {}
 
-setmetatable(toInstance, table.freeze({__mode="k"}))
-setmetatable(toPublicFields, table.freeze({__mode="k"}))
+-- Object class
+local Object = {}
 
--- Types
 export type Object = {
 	ClassName: string;
-	Class: {[string]: any}?;
-	[string]: any;
+	Class: { [any]: any };
+	[any]: any;
 }
 
--- Private class
-local Object = {
-	__metatable = "The metatable is locked.";
-}
-
-function Object:GetPublicFields()
-	return assert(toPublicFields[self], "Attempt to access a destroyed object.")
-end
 function Object:GetReference(): Instance
-	return assert(toInstance[self], "Attempt to access a destroyed object.")
+	return assert(toInstance[self], "Attempt to retrieve a destroyed object.")
 end
 
-function Object:Clone()
-	-- TODO: Clone
-end
-
-local configKeyFormat = "CFG_%s"
-
-function Object:GetConfig(configIndex: string)
-	local reference = self:GetReference()
-	assert(type(configIndex) == "string", "Config index must be a string.")
-	return reference:GetAttribute(string.format(configKeyFormat, configIndex))
-end
-function Object:SetConfig(configIndex: string, configValue: any)
-	local reference = self:GetReference()
-	assert(type(configIndex) == "string", "Config index must be a string.")
-	reference:SetAttribute(string.format(configKeyFormat, configIndex), configValue)
-end
-function Object:GetConfigChangedSignal(configIndex: string)
-	local reference = self:GetReference()
-	assert(type(configIndex) == "string", "Config index must be a string.")
-	return reference:GetAttributeChangedSignal(string.format(configKeyFormat, configIndex))
-end
-
-function Object:__invalidIndex(index: any)
-	error(string.format("Property %s is not a valid member of %s.", tostring(index), self.ClassName), 0)
-end
-function Object:__index(index: string)
-	local value: any
-	assert(type(index) == "string", string.format("%s is not a valid member of Object.", type(index)))
-
-	local publicFields = Object.GetPublicFields(self)
-
-	-- Check against subclass
-	local class = publicFields.Class
-	if class then
-		value = class[index]
-		if not rawequal(value, nil) then
-			return value
-		end
-	end
-
-	-- Check against methods
-	if not string.find(index, "^__") then
-		value = Object[index]
-		if not rawequal(value, nil) then
-			return value
-		end
-	end
-
-	-- Check against public object metadata
-	value = publicFields[index]
-	if not rawequal(value, nil) then
-		return value
-	end
-
-	local reference = Object.GetReference(self) :: any
-
-	-- Check against object properties
-	value = reference[index]
-	if not rawequal(value, nil) then
-		if type(value) == "function" then
-			return function(_, ...)
-				return value(reference, ...)
-			end
-		end
-		return value
-	end
-	return nil
-end
-function Object:__newindex(index: any, value: any)
-	local reference = self:GetReference()
-	reference[index] = value
-end
-
-function Object.__eq(a, b)
-	return rawequal(a, b)
-end
-function Object:__tostring()
-	return string.format("%s<X>", self.ClassName)
-end
-
-function Object.fromReference(reference: Instance): Object?
+function Object.from(reference: Instance): Object?
 	return byInstance[reference]
 end
 
@@ -150,13 +60,10 @@ function Object.findClass(objectName: string)
 end
 
 function Object.isObject(object: Object | any): boolean
-	if toInstance[object] then
-		return true
-	end
-	return false
+	return if toInstance[object] then true else false
 end
 
-function Object.partCount(objectName: string): number
+function Object.countParts(objectName: string): number
 	local target = objectFolder:FindFirstChild(objectName)
 	assert(target, string.format("%s is not a valid object.", objectName))
 
@@ -177,42 +84,28 @@ function Object.new(objectName: string): Object
 	local target = Object.getModel(objectName)
 	local reference = target:Clone()
 
-	-- Find class
+	-- Find class & create proxy
 	local Class = Object.findClass(objectName)
+	local object = Class.new()
 
-	-- Create public metadata
-	local publicFields = {
-		ClassName = objectName;
-		Class = Class;
-		State = {};
-	}
+	-- Update ClassName & Class fields
+	object.ClassName = objectName
+	object.Class = Class
 
-	-- Create proxy
-	local object = newproxy(true) :: Object
-	local objectMetatable = getmetatable(object :: any)
-
-	-- Copy metatable
-	for index, value in pairs(Object) do
-		objectMetatable[index] = value
-	end
+	-- Freeze the object
+	table.freeze(object)
 
 	-- Map object & metadata to world object and vice versa
 	byInstance[reference] = object
 	toInstance[object] = reference
-	toPublicFields[object] = publicFields
 
 	-- When the physical world object is destroyed, clean up data
 	reference.Destroying:Connect(function()
 		byInstance[reference] = nil
 		toInstance[object] = nil
-		toPublicFields[object] = nil
 	end)
 
 	CollectionService:AddTag(reference, "Object")
-
-	if Class and Class.Init then
-		Class.Init(object)
-	end
 	return object
 end
 
